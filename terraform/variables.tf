@@ -11,3 +11,9 @@ variable "mongodbatlas_public_key" {
 variable "mongodbatlas_private_key" {
   type = string
 }
+
+### GCP
+
+variable "gcp_machine_type" {
+  type = string
+}
