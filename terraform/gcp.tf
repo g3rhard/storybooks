@@ -1,5 +1,5 @@
 provider "google" {
-  credentials = file("terraform-sa-key.json")
+  credentials = file("../terraform-sa-key.json")
   project     = "disco-beanbag-298417"
   region      = "us-central1"
   zone        = "us-central1-c"
