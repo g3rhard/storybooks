@@ -25,4 +25,23 @@ resource "mongodbatlas_cluster" "mongo_cluster" {
 
 # db user
 
+resource "mongodbatlas_database_user" "mongo_user" {
+
+  username           = "storybooks-user-$(terraform.workspace)"
+  password           = var.atlas_user_password
+  project_id         = var.atlas_project_id
+  auth_database_name = "admin"
+
+  roles {
+    role_name     = "readWrite"
+    database_name = "storybooks"
+  }
+
+}
+
 # ip whitelist
+
+resource "mongodbatlas_project_ip_whitelist" "storybooks" {
+  project_id = var.atlas_project_id
+  ip_address = google_compute_address.ip_address.address
+}
