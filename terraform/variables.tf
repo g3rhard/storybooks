@@ -8,7 +8,7 @@ variable "atlas_project_id" {
   type = string
 }
 
-variable "atlas_username_password" {
+variable "atlas_user_password" {
   type = string
 }
 
