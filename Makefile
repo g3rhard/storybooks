@@ -10,6 +10,12 @@ create-tf-backend-bucket:
 
 ###
 
+define get-secret
+$(shell gcloud secrets versions access latest --secret=$(1) --project=$(PROJECT_ID))
+endef
+
+###
+
 ENV=staging
 
 terraform-create-workspace:
@@ -27,4 +33,7 @@ terraform-action:
 		terraform workspace select $(ENV) && \
 		terraform $(TF_ACTION) \
 			--var-file="./environments/common.tfvars" \
-			--var-file="./environments/$(ENV)/config.tfvars"
+			--var-file="./environments/$(ENV)/config.tfvars" \
+			-var="mongodbatlas_private_key=$(call get-secret,mongodbatlas_private_key)" \
+			-var="atlas_user_password=$(call get-secret,atlas_user_password_$(ENV))" \
+			-var="cloudflare_api_token=$(call get-secret,cloudflare_api_token)"
