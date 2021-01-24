@@ -1,4 +1,5 @@
 PROJECT_ID=disco-beanbag-298417
+ZONE=us-central1-a
 
 run-local:
 	docker-compose up
@@ -37,3 +38,18 @@ terraform-action:
 			-var="mongodbatlas_private_key=$(call get-secret,mongodbatlas_private_key)" \
 			-var="atlas_user_password=$(call get-secret,atlas_user_password_$(ENV))" \
 			-var="cloudflare_api_token=$(call get-secret,cloudflare_api_token)"
+
+###
+
+SSH_STRING=storybooks-vm-$(ENV)
+
+ssh:
+	gcloud compute ssh --zone=$(ZONE) \
+		--project=$(PROJECT_ID) \
+		$(SSH_STRING)
+
+ssh-cmd:
+	gcloud compute ssh $(SSH_STRING) \
+		--project=$(PROJECT_ID) \
+		--zone=$(ZONE) \
+		--command="$(CMD)"

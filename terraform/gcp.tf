@@ -67,7 +67,3 @@ resource "google_compute_instance" "instance" {
     scopes = ["storage-ro"]
   }
 }
-
-# ZONE
-
-# DNS A record
