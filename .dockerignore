@@ -1,1 +1,4 @@
+*-key.json
+config/config.env
 node_modules
+terraform

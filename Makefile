@@ -42,6 +42,11 @@ terraform-action:
 ###
 
 SSH_STRING=storybooks-vm-$(ENV)
+VERSION?=latest
+LOCAL_TAG=storybooks-app:$(VERSION)
+REMOTE_TAG=gcr.io/$(PROJECT_ID)/$(LOCAL_TAG)
+
+CONTAINER_NAME=storybooks-api
 
 ssh:
 	gcloud compute ssh --zone=$(ZONE) \
@@ -53,3 +58,26 @@ ssh-cmd:
 		--project=$(PROJECT_ID) \
 		--zone=$(ZONE) \
 		--command="$(CMD)"
+
+build:
+	docker build -t $(LOCAL_TAG) .
+
+push:
+	docker tag $(LOCAL_TAG) $(REMOTE_TAG)
+	docker push $(REMOTE_TAG)
+
+deploy:
+	$(MAKE) ssh-cmd CMD='docker-credential-gcr configure-docker'
+	$(MAKE) ssh-cmd CMD='docker pull $(REMOTE_TAG)'
+	-$(MAKE) ssh-cmd CMD='docker container stop $(CONTAINER_NAME)'
+	-$(MAKE) ssh-cmd CMD='docker container rm $(CONTAINER_NAME)'
+	$(MAKE) ssh-cmd CMD='\
+		docker run -d --name=$(CONTAINER_NAME) \
+			--restart=unless-stopped \
+			-p 80:3000 \
+			-e PORT=3000 \
+			-e \"MONGO_URI=mongodb+srv://storybooks-user-$(ENV):$(call get-secret,atlas_user_password_$(ENV))@storybooks-$(ENV).3y88a.mongodb.net/$(DB_NAME)?retryWrites=true&w=majority\" \
+			-e GOOGLE_CLIENT_ID=583683178691-kg0jkvie0j1bdkoj3bhbvkqg7nbrqlgr.apps.googleusercontent.com \
+			-e GOOGLE_CLIENT_SECRET=$(call get-secret,google_oauth_client_secret) \
+			$(REMOTE_TAG) \
+			'
